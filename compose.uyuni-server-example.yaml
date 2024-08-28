@@ -1,0 +1,211 @@
+# https://github.com/uyuni-project/uyuni-tools/blob/main/shared/podman/network.go
+networks:
+  uyuni:
+    name: uyuni
+    driver: bridge
+
+# https://github.com/uyuni-project/uyuni-tools/blob/main/shared/utils/volumes.go
+volumes:
+  ca-cert:
+    driver: local
+    name: ca-cert
+  etc-apache2:
+    driver: local
+    name: etc-apache2
+  etc-cobbler:
+    driver: local
+    name: etc-cobbler
+  etc-postfix:
+    driver: local
+    name: etc-postfix
+  etc-rhn:
+    driver: local
+    name: etc-rhn
+  etc-salt:
+    driver: local
+    name: etc-salt
+  etc-sssd:
+    driver: local
+    name: etc-sssd
+  etc-sysconfig:
+    driver: local
+    name: etc-sysconfig
+  etc-systemd-multi:
+    driver: local
+    name: etc-systemd-multi
+  etc-systemd-sockets:
+    driver: local
+    name: etc-systemd-sockets
+  etc-tls:
+    driver: local
+    name: etc-tls
+  etc-tomcat:
+    driver: local
+    name: etc-tomcat
+  root:
+    driver: local
+    name: root
+  srv-formulametadata:
+    driver: local
+    name: srv-formulametadata
+  srv-pillar:
+    driver: local
+    name: srv-pillar
+  srv-salt:
+    driver: local
+    name: srv-salt
+  srv-spacewalk:
+    driver: local
+    name: srv-spacewalk
+  srv-susemanager:
+    driver: local
+    name: srv-susemanager
+  srv-tftpboot:
+    driver: local
+    name: srv-tftpboot
+  srv-www:
+    driver: local
+    name: srv-www
+  tls-key:
+    driver: local
+    name: tls-key
+  var-cache:
+    driver: local
+    name: var-cache
+  var-cobbler:
+    driver: local
+    name: var-cobbler
+  var-log:
+    driver: local
+    name: var-log
+  var-pgsql:
+    driver: local
+    name: var-pgsql
+  # var-pgsql:
+  #   driver: local
+  #   name: var-pgsql
+  #   driver_opts:
+  #     type: none
+  #     device: /data/pgsql
+  #     o: bind
+  var-salt:
+    driver: local
+    name: var-salt
+  var-spacewalk:
+    driver: local
+    name: var-spacewalk
+  # var-spacewalk:
+  #   driver: local
+  #   name: var-spacewalk
+  #   driver_opts:
+  #     type: none
+  #     device: /data/spacewalk
+  #     o: bind
+
+services:
+  uyuni-server:
+    container_name: uyuni-server
+    # Hostname must be a valid FQDN with two dots
+    # otherwise the first time setup will fail!
+    hostname: uyuni-server.example.com
+    image: localhost/uyuni-server:latest
+    build:
+      context: .
+      dockerfile: uyuni-server.Containerfile
+      # UYUNI_SERVER_IMAGE: registry.opensuse.org/systemsmanagement/uyuni/snapshots/2024.08/containers/uyuni/server
+      # UYUNI_SERVER_TAG: latest
+    networks:
+      - uyuni
+    ports:
+      # - 67:67 # DHCP
+      - 69:69 # TFTP
+      - 80:80 # HTTP
+      - 443:443 # HTTPS
+      - 4505:4505 # Salt
+      - 4506:4506 # Salt
+      - 5432:5432 # PostgreSQL
+      - 25151:25151 # Cobbler
+      - 5556:5556 # Prometheus (Taskomatic JMX metrics)
+      - 5557:5557 # Prometheus (Tomcat JMX metrics)
+      - 8069:69 # TFTP
+      - 9187:9187 # Prometheus (PostgreSQL metrics)
+      - 9800:9800 # Prometheus (Taskomatic metrics)
+      - 25151:25151 # Cobbler
+    volumes:
+      - ca-cert:/etc/pki/trust/anchors
+      - etc-apache2:/etc/apache2
+      - etc-cobbler:/etc/cobbler
+      - etc-postfix:/etc/postfix
+      - etc-rhn:/etc/rhn
+      - etc-salt:/etc/salt
+      - etc-sssd:/etc/sssd
+      # ./sssd.conf:/etc/sssd/conf.d/custom.conf
+      - etc-sysconfig:/etc/sysconfig
+      - etc-systemd-multi:/etc/systemd/system/multi-user.target.wants
+      - etc-systemd-sockets:/etc/systemd/system/sockets.target.wants
+      - etc-tls:/etc/pki/tls
+      - etc-tomcat:/etc/tomcat
+      - root:/root
+      - srv-formulametadata:/srv/formula_metadata
+      - srv-pillar:/srv/pillar
+      - srv-salt:/srv/salt
+      - srv-spacewalk:/srv/spacewalk
+      - srv-susemanager:/srv/susemanager
+      - srv-tftpboot:/srv/tftpboot
+      - srv-www:/srv/www/
+      - tls-key:/etc/pki/spacewalk-tls
+      - var-cache:/var/cache
+      - var-cobbler:/var/lib/cobbler
+      - var-log:/var/log
+      - var-pgsql:/var/lib/pgsql
+      - var-salt:/var/lib/salt
+      - var-spacewalk:/var/spacewalk
+    tmpfs: /run
+    shm_size: 512M
+    environment:
+      - UYUNI_FQDN=uyuni-server.example.com
+      - MANAGER_USER=admin
+      - MANAGER_PASS=spacewalk
+      - MANAGER_ADMIN_EMAIL=admin@example.com
+      - MANAGER_MAIL_FROM=notifications@example.com
+      - MANAGER_FIRSTNAME=Administrator
+      - MANAGER_LASTNAME=McAdmin
+      - MANAGER_ORG=Organization
+      - CERT_O=SUSE
+      - CERT_OU=SUSE
+      - CERT_CITY=Nuernberg
+      - CERT_STATE=Bayern
+      - CERT_COUNTRY=DE
+      - CERT_EMAIL=admin@example.com
+      - CERT_PASS=spacewalk
+      - CERT_CNAMES=
+      - USE_EXISTING_CERTS=n
+      # - USE_EXISTING_CERTS=y
+      # - CA_CERT=/root/ca.pem
+      # - SERVER_CERT=/root/server.pem
+      # - SERVER_KEY=/root/server.key
+      - MANAGER_DB_NAME=susemanager
+      - MANAGER_DB_USER=spacewalk
+      - MANAGER_DB_PASS=
+      - MANAGER_DB_HOST=localhost
+      - MANAGER_DB_PORT=5432
+      - MANAGER_DB_PROTOCOL=TCP
+      - MANAGER_DB_CA_CERT=
+      - MANAGER_ENABLE_TFTP=y
+      - SCC_USER=
+      - SCC_PASS=
+      - REPORT_DB_HOST=localhost
+      - REPORT_DB_PORT=5432
+      - REPORT_DB_NAME=reportdb
+      - REPORT_DB_USER=pythia_susemanager
+      - REPORT_DB_PASS=
+      - REPORT_DB_CA_CERT=
+      - EXTERNALDB_ADMIN_USER=
+      - EXTERNALDB_ADMIN_PASS=
+      - EXTERNALDB_PROVIDER=
+      - ISS_PARENT=
+      - MIRROR_PATH=
+      - ACTIVATE_SLP=
+    cgroup: host
+    cap_add:
+      - CAP_NET_RAW

@@ -1,0 +1,56 @@
+[Unit]
+Description=Uyuni Server First Time Setup
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/uyuni-server-first-time-setup.sh
+TimeoutStartSec=600
+TimeoutSec=600
+#Environment=SYSTEMD_LOG_LEVEL=debug
+PassEnvironment=UYUNI_FQDN \
+                MANAGER_USER \
+                MANAGER_PASS \
+                MANAGER_FIRSTNAME \
+                MANAGER_LASTNAME \
+                MANAGER_ORG \
+                MANAGER_ADMIN_EMAIL \
+                MANAGER_MAIL_FROM \
+                MANAGER_ENABLE_TFTP \
+                LOCAL_DB \
+                MANAGER_DB_NAME \
+                MANAGER_DB_USER \
+                MANAGER_DB_PASS \
+                MANAGER_DB_HOST \
+                MANAGER_DB_PORT \
+                MANAGER_DB_PROTOCOL \
+                MANAGER_DB_CA_CERT \
+                REPORT_DB_NAME \
+                REPORT_DB_HOST \
+                REPORT_DB_PORT \
+                REPORT_DB_USER \
+                REPORT_DB_PASS \
+                REPORT_DB_CA_CERT \
+                EXTERNALDB_ADMIN_USER \
+                EXTERNALDB_ADMIN_PASS \
+                EXTERNALDB_PROVIDER \
+                ISS_PARENT \
+                MIRROR_PATH \
+                ACTIVATE_SLP \
+                SCC_USER \
+                SCC_PASS \
+                USE_EXISTING_CERTS \
+                CERT_CNAMES \
+                CERT_O \
+                CERT_OU \
+                CERT_CITY \
+                CERT_STATE \
+                CERT_COUNTRY \
+                CERT_EMAIL \
+                CERT_PASS \
+                CA_CERT \
+                SERVER_CERT \
+                SERVER_KEY
+
+[Install]
+WantedBy=multi-user.target

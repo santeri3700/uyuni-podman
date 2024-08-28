@@ -1,0 +1,6 @@
+*.yaml
+!compose.uyuni-*-example.yaml
+*.pem
+*.crt
+*.key
+*.csr

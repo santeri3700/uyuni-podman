@@ -1,0 +1,17 @@
+[Unit]
+Description=Uyuni Server Container
+Requires=podman.service
+Wants=network.target
+After=network-online.target
+
+[Service]
+Restart=on-failure
+TimeoutStopSec=180
+TimeoutStartSec=900
+ExecStartPre=podman compose -f /path/to/compose.uyuni-server.yaml down
+ExecStart=podman compose -f /path/to/compose.uyuni-server.yaml up
+ExecStop=podman compose -f /path/to/compose.uyuni-server.yaml down
+Type=simple
+
+[Install]
+WantedBy=multi-user.target default.target
